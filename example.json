@@ -1,0 +1,15 @@
+{
+    "test_cases": [
+        {
+            "question": "A 62-year-old man presented with a 4-month history of progressive dysphagia that initially involved solid foods and later progressed to difficulty swallowing liquids. He also reported unintentional weight loss of approximately 8 kg over this period. He denied odynophagia, hematemesis, or prior history of gastroesophageal reflux disease. Physical examination was unremarkable. Laboratory studies showed mild normocytic anemia. Contrast-enhanced CT of the chest demonstrated an irregular, circumferential thickening of the mid-esophagus with luminal narrowing. A barium swallow study showed an irregular narrowing with shouldered edges. There was no evidence of distant metastasis on imaging.",
+            "ground_truth": "esophageal malignancy",
+            "ground_truth_reasoning": "Progressive dysphagia suggests esophageal malignancy.\nWeight loss supports a malignant process.",
+            "contexts": [
+                "Esophageal carcinoma commonly presents with progressive dysphagia that advances from solids to liquids and is frequently associated with weight loss.",
+                "Benign strictures are usually related to chronic reflux or caustic injury and are less commonly associated with marked weight loss."
+            ],
+            "answer_reasoning": "Significant weight loss further supports a malignant etiology.",
+            "answer": "progressive dysphagia"
+        }
+    ]
+}
