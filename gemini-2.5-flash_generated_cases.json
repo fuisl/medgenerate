@@ -1,0 +1,10 @@
+{
+    "model_name": "gemini-2.5-flash",
+    "rag": false,
+    "test_cases": [
+        {
+            "answer": "Leptospirosis",
+            "answer_reasoning": "The patient presents with a constellation of symptoms highly suggestive of leptospirosis, a zoonotic disease endemic in tropical and subtropical regions. The history of working in a remote jungle area near the Ucayali River, a known endemic zone for leptospirosis, is a significant risk factor. The clinical presentation includes fever, retro-orbital headache, jaundice, coffee-ground vomiting, gross hematuria, mental obtundation, seizures, and bleeding (oral mucosa, venipuncture sites, ecchymoses), all of which are characteristic manifestations of severe leptospirosis (Weil's disease). The laboratory findings further support this diagnosis: elevated liver enzymes (AST, ALT), hyperbilirubinemia, thrombocytopenia, elevated urea and creatinine, prolonged PT and aPTT, and proteinuria with red blood cells in the urine are all consistent with leptospirosis. The negative malaria thick films rule out malaria, a common differential diagnosis in this region. While hepatitis B is considered due to the history of hepatitis and jaundice, the negative IgM anti-Hbc makes acute hepatitis B less likely. Brucellosis is also ruled out by negative serology. The elevated CK suggests muscle involvement, which can occur in severe leptospirosis."
+        }
+    ]
+}

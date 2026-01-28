@@ -1,0 +1,10 @@
+{
+    "model_name": "gemini-2.5-flash",
+    "rag": false,
+    "test_cases": [
+        {
+            "answer": "Leptospirosis",
+            "answer_reasoning": "The patient presents with a constellation of symptoms highly suggestive of leptospirosis, a bacterial infection transmitted through the urine of infected animals. The key indicators include fever, retro-orbital headache, jaundice, coffee-ground vomiting, gross hematuria, mental obtundation, and seizures. The patient's occupation as a logging supervisor in a remote jungle area near the Ucayali River in Peru places him at high risk for exposure to contaminated water or soil. The laboratory findings of elevated liver enzymes (AST, ALT), elevated bilirubin, thrombocytopenia, prolonged prothrombin time and aPTT, and renal involvement (elevated urea and creatinine, proteinuria, hematuria) further support the diagnosis. The absence of malaria on thick films and negative Brucella serology help rule out other common tropical diseases. The severe presentation with multi-organ involvement, including hepatic, renal, and neurological dysfunction, is characteristic of severe leptospirosis, also known as Weil's disease."
+        }
+    ]
+}

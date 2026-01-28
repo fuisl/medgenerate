@@ -9,6 +9,7 @@ from base64 import b64encode
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, NotRequired, Required, Annotated
 
+from langchain.messages import AnyMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, END, START
 from langgraph.runtime import Runtime
@@ -214,6 +215,7 @@ class State(TypedDict):
     See: https://langchain-ai.github.io/langgraph/concepts/low_level/#state
     """
 
+    messages: Annotated[NotRequired[List[AnyMessage]], add]
     input_csv_path: Required[str]
     cases: NotRequired[List[Case]]
     n: NotRequired[int]
@@ -249,7 +251,7 @@ async def call_model(state: State, runtime: Runtime[Context]):
 
     llm_structured_output = llm.with_structured_output(ModelAnswer)
 
-    question = current_case["question"]  # type: ignore
+    question = current_case.get("question")  # type: ignore
 
     human_msg = f"""Given the following question, provide a concise diagnosis answer and your reasoning.
 Question: {question}"""
@@ -260,17 +262,20 @@ Question: {question}"""
         context_str = "\n\n".join(contexts)  # type: ignore
         human_msg += f"\n\nRelevant Contexts:\n{context_str}"
 
-    human_content = [
-        {"type": "text", "text": human_msg},
-    ]
+    if not state.get("messages"):
+        human_content = [
+            {"type": "text", "text": human_msg},
+        ]
 
-    image_lists = [
-        {"type": "image", "base64": convert_to_base64(img_path), "mime_type": "image/jpeg"} for img_path in current_case.get("image_paths", [])  # type: ignore
-    ]
+        image_lists = [
+            {"type": "image", "base64": convert_to_base64(img_path), "mime_type": "image/jpeg"} for img_path in current_case.get("image_paths", [])  # type: ignore
+        ]
 
-    if image_lists:
-        human_content.extend(image_lists)
-
+        if image_lists:
+            human_content.extend(image_lists)
+    else:
+        # Use the provided messages directly
+        human_content = state["messages"][-1].get("content")  # type: ignore
     msgs = [
         {
             "role": "system",
@@ -286,6 +291,13 @@ Question: {question}"""
     output["answer"] = response.answer
     output["answer_reasoning"] = response.answer_reasoning
 
+    if state.get("messages") is not None:
+        ai_message = AIMessage(
+            content=output["answer"] + "\n\n" + output["answer_reasoning"]  # type: ignore
+        )
+
+        return {"generated_cases": [output], "n": state["n"] - 1, "messages": [ai_message]}  # type: ignore
+
     return {"generated_cases": [output], "n": state["n"] - 1}  # type: ignore
 
 
@@ -300,6 +312,9 @@ def query_context(question: str) -> List[str]:
 
 def extract_cases_from_csv(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
     """Extract cases from CSV file."""
+    if state.get("messages") is not None:
+        cases = [Case()]  # type: ignore
+        return {"cases": cases, "num_cases": len(cases), "n": len(cases)}
 
     df = pd.read_csv(state["input_csv_path"])
     cases_raw = df.to_dict(orient="records")
@@ -359,6 +374,10 @@ def export_results(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
         + ("_rag" if rag_enabled else "")
         + ".json"
     )
+
+    if state.get("messages"):
+        output_path = "generated_cases_from_messages.json"
+
     with open(output_path, "w") as f:
 
         json.dump(
@@ -392,11 +411,22 @@ def export_results(state: State, runtime: Runtime[Context]) -> Dict[str, Any]:
 """
 
 
+def get_case_from_message(state: State, runtime: Runtime[Context]):
+    """Extract case from messages."""
+    messages = state.get("messages", [])
+    for msg in messages:
+        print(msg)
+    return {"cases": []}
+
+
 builder = StateGraph(State, context_schema=Context)
 
 builder.add_node("extract_cases_from_csv", extract_cases_from_csv)
 builder.add_node("call_model", call_model)
 builder.add_node("export_results", export_results)
+
+# builder.add_edge(START, "get_case_from_message")
+# builder.add_edge("get_case_from_message", END)
 
 builder.add_edge(START, "extract_cases_from_csv")
 builder.add_edge("extract_cases_from_csv", "call_model")
